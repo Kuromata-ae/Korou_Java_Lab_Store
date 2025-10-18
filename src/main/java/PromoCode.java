@@ -30,14 +30,14 @@ public class PromoCode extends DiscountManager {
 
     @Override
     public double calculateDiscount(Product product) {
-        if (used || !product.getCategory().getName().equals(category.getName())) {
+        if (used || product.getCategory() != this.category) {
             return 0.0;
         }
         return product.getPrice() * (discountPercent / 100.0);
     }
 
     public boolean usePromoCode(Product product) {
-        if (isActive() && product.getCategory().getName().equals(category.getName())) {
+        if (isActive() && product.getCategory() == this.category) {
             used = true;
             return true;
         }

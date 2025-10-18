@@ -23,7 +23,7 @@ public class CategoryDiscount extends DiscountManager {
 
     @Override
     public double calculateDiscount(Product product) {
-        if (!isActive() || !product.getCategory().getName().equals(category.getName())) {
+        if (!isActive() || product.getCategory() != this.category) {
             return 0.0;
         }
         return product.getPrice() * (discountPercent / 100.0);

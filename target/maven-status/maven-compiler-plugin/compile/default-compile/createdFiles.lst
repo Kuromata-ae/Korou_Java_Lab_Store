@@ -3,12 +3,13 @@ PricePolicy.class
 DigitalProduct.class
 PromoCode.class
 PercentageOff.class
-AntiBag.class
 BogoHalf.class
 Database.class
+AntiBag.class
 CategoryDiscount.class
 FixedOff.class
 Main.class
+AccountManager.class
 Category.class
 DiscountManager.class
 PhysicalProduct.class
