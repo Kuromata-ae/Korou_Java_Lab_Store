@@ -1,0 +1,1 @@
+export const fetchDiscounts   = () => api.get<Discount[]>('/discounts');
