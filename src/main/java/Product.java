@@ -141,6 +141,17 @@ public class Product {
         return category;
     }
 
+    public boolean decreaseQuantity(int amount) {
+        if (amount <= 0) {
+            return false; // Or throw an exception
+        }
+        if (this.quantity < amount) {
+            return false; // Not enough stock
+        }
+        this.quantity -= amount;
+        return true;
+    }
+
     // ---------------- Final Price Methods (POLYMORPHISM) ----------------
 
     public double finalPrice() {

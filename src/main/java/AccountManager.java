@@ -42,7 +42,7 @@ public class AccountManager {
             System.out.println("Недостаточно средств для погашения кредита.");
             return;
         }
-        if (user.getCredit() < amount) {
+        if (amount > user.getCredit()) {
             System.out.println("Сумма погашения превышает задолженность.");
             return;
         }
