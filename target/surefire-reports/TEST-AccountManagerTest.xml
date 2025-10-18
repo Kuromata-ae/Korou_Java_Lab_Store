@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="DiscountManagerTest" time="0.018" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="AccountManagerTest" time="0.068" tests="8" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
@@ -53,6 +53,41 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testCategoryDiscountWithSameNameCategories" classname="DiscountManagerTest" time="0.015"/>
-  <testcase name="testPromoCodeWithSameNameCategories" classname="DiscountManagerTest" time="0.001"/>
+  <testcase name="testDepositInvalidAmount" classname="AccountManagerTest" time="0.004">
+    <system-out><![CDATA[Сумма пополнения должна быть положительной.
+]]></system-out>
+  </testcase>
+  <testcase name="testRequestCredit" classname="AccountManagerTest" time="0.039">
+    <system-out><![CDATA[Кредит на 200.00 USDT одобрен. Текущий баланс: 200.00 USDT, задолженность: 200.00 USDT
+]]></system-out>
+  </testcase>
+  <testcase name="testRepayCreditExceedsDebt" classname="AccountManagerTest" time="0.002">
+    <system-out><![CDATA[Кредит на 100.00 USDT одобрен. Текущий баланс: 100.00 USDT, задолженность: 100.00 USDT
+Недостаточно средств для погашения кредита.
+]]></system-out>
+  </testcase>
+  <testcase name="testPurchaseInsufficientFunds" classname="AccountManagerTest" time="0.001">
+    <system-out><![CDATA[Баланс пополнен на 20.00 USDT. Текущий баланс: 20.00 USDT
+Недостаточно средств. Пожалуйста, пополните баланс.
+]]></system-out>
+  </testcase>
+  <testcase name="testDeposit" classname="AccountManagerTest" time="0.004">
+    <system-out><![CDATA[Баланс пополнен на 100.00 USDT. Текущий баланс: 100.00 USDT
+]]></system-out>
+  </testcase>
+  <testcase name="testPurchaseSuccess" classname="AccountManagerTest" time="0.002">
+    <system-out><![CDATA[Баланс пополнен на 100.00 USDT. Текущий баланс: 100.00 USDT
+Списано 50.00 USDT. Остаток баланса: 50.00 USDT
+]]></system-out>
+  </testcase>
+  <testcase name="testRepayCreditSuccess" classname="AccountManagerTest" time="0.003">
+    <system-out><![CDATA[Кредит на 200.00 USDT одобрен. Текущий баланс: 200.00 USDT, задолженность: 200.00 USDT
+Кредит погашен на 100.00 USDT. Остаток задолженности: 100.00 USDT
+]]></system-out>
+  </testcase>
+  <testcase name="testRepayCreditInsufficientFunds" classname="AccountManagerTest" time="0.001">
+    <system-out><![CDATA[Кредит на 200.00 USDT одобрен. Текущий баланс: 200.00 USDT, задолженность: 200.00 USDT
+Недостаточно средств для погашения кредита.
+]]></system-out>
+  </testcase>
 </testsuite>

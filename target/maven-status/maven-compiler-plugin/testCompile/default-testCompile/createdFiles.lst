@@ -1,1 +1,4 @@
+UserTest.class
+AccountManagerTest.class
 DiscountManagerTest.class
+TransactionTest.class
