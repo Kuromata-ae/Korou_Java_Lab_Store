@@ -3,6 +3,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Main {
+    private static final AccountManager accountManager = new AccountManager();
+    private static final TaxService taxService = new VatService();
+    private static final User currentUser = new User("Customer");
     private static List<CategoryDiscount> categoryDiscounts = new ArrayList<>();
     private static List<PromoCode> promoCodes = new ArrayList<>();
 
@@ -32,9 +35,13 @@ public class Main {
             System.out.println("7. Create promo code");
             System.out.println("8. Use promo code");
             System.out.println("9. Show all discounts and promo codes");
-            System.out.println("10. Show project information");
-            System.out.println("11. Reset Database");
-            System.out.println("12. Exit");
+            System.out.println("10. Buy Product");
+            System.out.println("11. Show project information");
+            System.out.println("12. View Balance and Credit");
+            System.out.println("13. Deposit Funds");
+            System.out.println("14. Repay Credit");
+            System.out.println("15. Reset Database");
+            System.out.println("16. Exit");
             System.out.print("Choice: ");
 
             int choice;
@@ -74,9 +81,21 @@ public class Main {
                     showAllDiscounts();
                     break;
                 case 10:
-                    showProjectInformation(electronics, books);
+                    handleBuyProduct(scanner, electronics, books);
                     break;
                 case 11:
+                    showProjectInformation(electronics, books);
+                    break;
+                case 12:
+                    showBalanceAndCredit();
+                    break;
+                case 13:
+                    handleDeposit(scanner);
+                    break;
+                case 14:
+                    handleRepayCredit(scanner);
+                    break;
+                case 15:
                     Database.resetDatabase();
                     Database.initDatabase();
                     Database.initDiscountTables();
@@ -86,7 +105,7 @@ public class Main {
                     promoCodes.clear();
                     System.out.println("Database has been reset.");
                     break;
-                case 12:
+                case 16:
                     running = false;
                     System.out.println("Goodbye!");
                     break;
@@ -95,6 +114,71 @@ public class Main {
             }
         }
         scanner.close();
+    }
+
+    private static void handleBuyProduct(Scanner scanner, Category electronics, Category books) {
+        System.out.print("Enter product ID to buy: ");
+        String productId = scanner.nextLine().trim();
+        Product product = AntiBag.findProductById(productId, electronics, books);
+
+        if (product == null) {
+            System.out.println("Product not found!");
+            return;
+        }
+
+        if (product.getQuantity() <= 0) {
+            System.out.println("Sorry, this product is out of stock.");
+            return;
+        }
+
+        double price = product.finalPrice(categoryDiscounts);
+        double tax = taxService.calculateTax(price);
+        double finalPrice = price + tax;
+
+        System.out.printf("Product: %s%n", product.getName());
+        System.out.printf("Price: %.2f USDT%n", price);
+        System.out.printf("VAT (20%%): %.2f USDT%n", tax);
+        System.out.printf("Total: %.2f USDT%n", finalPrice);
+        System.out.print("Proceed with purchase? (yes/no): ");
+        String confirmation = scanner.nextLine().trim();
+
+        if (confirmation.equalsIgnoreCase("yes")) {
+            if (accountManager.purchase(currentUser, finalPrice, scanner)) {
+                product.decreaseQuantity(1);
+                System.out.println("Purchase successful!");
+            } else {
+                System.out.println("Purchase failed. Check your balance or credit options.");
+            }
+        } else {
+            System.out.println("Purchase cancelled.");
+        }
+    }
+
+    private static void showBalanceAndCredit() {
+        System.out.println("\n--- ACCOUNT INFORMATION ---");
+        System.out.printf("Current Balance: %.2f USDT%n", accountManager.getBalance(currentUser));
+        System.out.printf("Outstanding Credit: %.2f USDT%n", accountManager.getCredit(currentUser));
+        System.out.println("-------------------------");
+    }
+
+    private static void handleDeposit(Scanner scanner) {
+        System.out.print("Enter amount to deposit: ");
+        try {
+            double amount = Double.parseDouble(scanner.nextLine().trim());
+            accountManager.deposit(currentUser, amount);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid amount. Please enter a numeric value.");
+        }
+    }
+
+    private static void handleRepayCredit(Scanner scanner) {
+        System.out.print("Enter amount to repay: ");
+        try {
+            double amount = Double.parseDouble(scanner.nextLine().trim());
+            accountManager.repayCredit(currentUser, amount);
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid amount. Please enter a numeric value.");
+        }
     }
 
     private static void handleCreateCategoryDiscount(Scanner scanner, Category electronics, Category books) {
@@ -236,18 +320,18 @@ public class Main {
             return;
         }
 
-        // Сначала рассчитываем скидку (пока промокод еще не использован)
-        double discountAmount = promoCode.calculateDiscount(product);
+        double discountAmount = promoCode.applyDiscount(product);
 
-        if (promoCode.usePromoCode(product)) {
-            double newPrice = product.getPrice() - discountAmount;
+        if (discountAmount > 0) {
+            promoCode.use();
             Database.updatePromoCodeUsage(code);
+            double newPrice = product.getPrice() - discountAmount;
 
-            System.out.printf("Promo code applied successfully!\\n");
-            System.out.printf("Product: %s\\n", product.getName());
-            System.out.printf("Original price: %.2f USDT\\n", product.getPrice());
-            System.out.printf("Discount: %.2f USDT (%.1f%%)\\n", discountAmount, promoCode.getDiscountPercent());
-            System.out.printf("Final price: %.2f USDT\\n", newPrice);
+            System.out.printf("Promo code applied successfully!%n");
+            System.out.printf("Product: %s%n", product.getName());
+            System.out.printf("Original price: %.2f USDT%n", product.getPrice());
+            System.out.printf("Discount: %.2f USDT (%.1f%%)%n", discountAmount, promoCode.getDiscountPercent());
+            System.out.printf("Final price: %.2f USDT%n", newPrice);
         } else {
             System.out.println("Cannot apply promo code to this product (wrong category or already used).");
         }
