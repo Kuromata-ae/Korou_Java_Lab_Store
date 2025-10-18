@@ -1,0 +1,14 @@
+Product.class
+PricePolicy.class
+DigitalProduct.class
+PromoCode.class
+PercentageOff.class
+AntiBag.class
+BogoHalf.class
+Database.class
+CategoryDiscount.class
+FixedOff.class
+Main.class
+Category.class
+DiscountManager.class
+PhysicalProduct.class

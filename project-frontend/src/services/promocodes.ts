@@ -1,0 +1,1 @@
+export const fetchPromoCodes = () => api.get<PromoCode[]>('/promo-codes');

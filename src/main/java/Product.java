@@ -1,24 +1,30 @@
 import java.util.Objects;
+import java.util.List;
 
-import java.util.Objects;
 public class Product {
+
     public static final String DEFAULT_CURRENCY = "USDT";
+
     private static int SEQ = 1;
     private static int createdCount = 0;
+
     private String id;
     private String name;
     private String description;
     private double price;
     private int quantity;
     private Category category;
+
     private static String nextSeq() {
         return String.valueOf(SEQ++);
     }
+
     public static int getCreatedCount() {
         return createdCount;
     }
 
     // ---------------- Guard methods ----------------
+
     private boolean trySetId(String id) {
         if (id != null && !id.isBlank()) {
             this.id = id;
@@ -26,6 +32,7 @@ public class Product {
         }
         return false;
     }
+
     private boolean trySetName(String name) {
         if (name != null && !name.isBlank()) {
             this.name = name;
@@ -33,6 +40,7 @@ public class Product {
         }
         return false;
     }
+
     private boolean trySetDescription(String description) {
         if (description == null || description.isBlank()) {
             this.description = null;
@@ -57,12 +65,14 @@ public class Product {
         }
         return false;
     }
+
     private boolean trySetCategory(Category category) {
         this.category = category;
         return true;
     }
 
     // ---------------- Constructors ----------------
+
     public Product() {
         this.id = "AUTO-" + nextSeq();
         this.name = "Unnamed";
@@ -72,12 +82,14 @@ public class Product {
         this.category = null;
         createdCount++;
     }
+
     public Product(String id, String name, double price) {
-        this(); // chain to no‑args constructor
+        this(); // chain to no-args constructor
         trySetId(id);
         trySetName(name);
         trySetPrice(price);
     }
+
     public Product(String id, String name, String description,
                    double price, int quantity, Category category) {
         this(); // initialise default values
@@ -90,9 +102,11 @@ public class Product {
     }
 
     // ---------------- Static factory methods ----------------
+
     public static Product of(String id, String name, double price) {
         return new Product(id, name, price);
     }
+
     public static Product freeSample(String name) {
         Product p = new Product();
         p.trySetName(name);
@@ -125,6 +139,34 @@ public class Product {
 
     public Category getCategory() {
         return category;
+    }
+
+    // ---------------- Final Price Methods (POLYMORPHISM) ----------------
+
+    public double finalPrice() {
+        return price;
+    }
+
+    public double finalPrice(int qty) {
+        if (qty <= 0) return 0.0;
+        return price * qty;
+    }
+
+    public double finalPrice(int qty, PricePolicy policy) {
+        if (qty <= 0) return 0.0;
+        return policy.apply(this, qty);
+    }
+
+    public double finalPrice(int qty, List<PricePolicy> policies) {
+        if (qty <= 0) return 0.0;
+        double bestPrice = Double.MAX_VALUE;
+        for (PricePolicy policy : policies) {
+            if (policy.applicableTo(this)) {
+                double price = policy.apply(this, qty);
+                bestPrice = Math.min(bestPrice, price);
+            }
+        }
+        return bestPrice == Double.MAX_VALUE ? finalPrice(qty) : bestPrice;
     }
 
     // ---------------- String representation ----------------
