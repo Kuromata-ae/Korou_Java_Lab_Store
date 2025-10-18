@@ -31,7 +31,7 @@ public class AccountManagerTest {
     @Test
     public void testPurchaseSuccess() {
         accountManager.deposit(user, 100.0);
-        boolean success = accountManager.purchase(user, 50.0);
+        boolean success = accountManager.purchase(user, 50.0, new java.util.Scanner(""));
         assertTrue(success);
         assertEquals(50.0, accountManager.getBalance(user));
         assertEquals(2, accountManager.getTransactions().size());
@@ -41,7 +41,7 @@ public class AccountManagerTest {
     @Test
     public void testPurchaseInsufficientFunds() {
         accountManager.deposit(user, 20.0);
-        boolean success = accountManager.purchase(user, 50.0);
+        boolean success = accountManager.purchase(user, 50.0, new java.util.Scanner("no"));
         assertFalse(success);
         assertEquals(20.0, accountManager.getBalance(user));
         assertEquals(1, accountManager.getTransactions().size());
@@ -83,5 +83,17 @@ public class AccountManagerTest {
         assertEquals(100.0, accountManager.getBalance(user));
         assertEquals(100.0, accountManager.getCredit(user));
         assertEquals(1, accountManager.getTransactions().size());
+    }
+
+    @Test
+    public void testPurchaseWithCredit() {
+        accountManager.deposit(user, 20.0);
+        boolean success = accountManager.purchase(user, 50.0, new java.util.Scanner("yes"));
+        assertTrue(success);
+        assertEquals(0.0, accountManager.getBalance(user));
+        assertEquals(30.0, accountManager.getCredit(user));
+        assertEquals(3, accountManager.getTransactions().size());
+        assertEquals(Transaction.TransactionType.CREDIT_REQUEST, accountManager.getTransactions().get(1).getType());
+        assertEquals(Transaction.TransactionType.PURCHASE, accountManager.getTransactions().get(2).getType());
     }
 }

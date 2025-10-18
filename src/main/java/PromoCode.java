@@ -1,56 +1,45 @@
 import java.time.LocalDateTime;
 
-public class PromoCode extends DiscountManager {
-    private String code;
+public class PromoCode extends AbstractDiscount {
+
+    private final String code;
     private boolean used;
 
-    // Конструктор для создания новых промокодов
     public PromoCode(Category category, double discountPercent, String code) {
         super(category, discountPercent);
         this.code = code.toUpperCase();
         this.used = false;
     }
 
-    // Конструктор для загрузки из базы данных
-    public PromoCode(Category category,
-                     double discountPercent,
-                     String code,
-                     boolean used,
-                     LocalDateTime createdAt) {
-        super(category, discountPercent);
+    public PromoCode(String id, Category category, double discountPercent, String code, boolean used, LocalDateTime createdAt) {
+        super(id, category, discountPercent, createdAt);
         this.code = code.toUpperCase();
         this.used = used;
-        this.createdAt = createdAt; // переопределяем время создания
     }
 
     @Override
-    public boolean isActive() {
-        return !used;
+    protected boolean canBeApplied(Product product) {
+        return !used && product.getCategory() == this.category;
     }
 
-    @Override
-    public double calculateDiscount(Product product) {
-        if (used || product.getCategory() != this.category) {
-            return 0.0;
+    public void use() {
+        if (!used) {
+            this.used = true;
         }
-        return product.getPrice() * (discountPercent / 100.0);
     }
 
-    public boolean usePromoCode(Product product) {
-        if (isActive() && product.getCategory() == this.category) {
-            used = true;
-            return true;
-        }
-        return false;
+    public String getCode() {
+        return code;
     }
 
-    public String getCode() { return code; }
-    public boolean isUsed() { return used; }
+    public boolean isUsed() {
+        return used;
+    }
 
     @Override
     public String toString() {
         String status = used ? "USED" : "NEW";
-        return super.toString() + String.format(", code='%s', status=%s", code, status);
+        return String.format("PromoCode{id='%s', category='%s', discount=%.1f%%, code='%s', status=%s}",
+                id, category.getName(), discountPercent, code, status);
     }
 }
-

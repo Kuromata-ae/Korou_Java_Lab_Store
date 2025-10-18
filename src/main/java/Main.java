@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Main {
     private static final AccountManager accountManager = new AccountManager();
+    private static final TaxService taxService = new VatService();
     private static final User currentUser = new User("Customer");
     private static List<CategoryDiscount> categoryDiscounts = new ArrayList<>();
     private static List<PromoCode> promoCodes = new ArrayList<>();
@@ -130,18 +131,23 @@ public class Main {
             return;
         }
 
-        double finalPrice = product.finalPrice(); // Simplified for now, can be extended with policies
+        double price = product.finalPrice(categoryDiscounts);
+        double tax = taxService.calculateTax(price);
+        double finalPrice = price + tax;
 
-        System.out.printf("Product: %s, Price: %.2f USDT%n", product.getName(), finalPrice);
+        System.out.printf("Product: %s%n", product.getName());
+        System.out.printf("Price: %.2f USDT%n", price);
+        System.out.printf("VAT (20%%): %.2f USDT%n", tax);
+        System.out.printf("Total: %.2f USDT%n", finalPrice);
         System.out.print("Proceed with purchase? (yes/no): ");
         String confirmation = scanner.nextLine().trim();
 
         if (confirmation.equalsIgnoreCase("yes")) {
-            if (accountManager.purchase(currentUser, finalPrice)) {
-                product.decreaseQuantity(1); // Decrease stock by 1
+            if (accountManager.purchase(currentUser, finalPrice, scanner)) {
+                product.decreaseQuantity(1);
                 System.out.println("Purchase successful!");
             } else {
-                System.out.println("Purchase failed. Check your balance.");
+                System.out.println("Purchase failed. Check your balance or credit options.");
             }
         } else {
             System.out.println("Purchase cancelled.");
@@ -314,18 +320,18 @@ public class Main {
             return;
         }
 
-        // Сначала рассчитываем скидку (пока промокод еще не использован)
-        double discountAmount = promoCode.calculateDiscount(product);
+        double discountAmount = promoCode.applyDiscount(product);
 
-        if (promoCode.usePromoCode(product)) {
-            double newPrice = product.getPrice() - discountAmount;
+        if (discountAmount > 0) {
+            promoCode.use();
             Database.updatePromoCodeUsage(code);
+            double newPrice = product.getPrice() - discountAmount;
 
-            System.out.printf("Promo code applied successfully!\\n");
-            System.out.printf("Product: %s\\n", product.getName());
-            System.out.printf("Original price: %.2f USDT\\n", product.getPrice());
-            System.out.printf("Discount: %.2f USDT (%.1f%%)\\n", discountAmount, promoCode.getDiscountPercent());
-            System.out.printf("Final price: %.2f USDT\\n", newPrice);
+            System.out.printf("Promo code applied successfully!%n");
+            System.out.printf("Product: %s%n", product.getName());
+            System.out.printf("Original price: %.2f USDT%n", product.getPrice());
+            System.out.printf("Discount: %.2f USDT (%.1f%%)%n", discountAmount, promoCode.getDiscountPercent());
+            System.out.printf("Final price: %.2f USDT%n", newPrice);
         } else {
             System.out.println("Cannot apply promo code to this product (wrong category or already used).");
         }

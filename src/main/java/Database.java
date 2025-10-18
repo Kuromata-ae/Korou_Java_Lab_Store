@@ -166,6 +166,7 @@ public class Database {
                 Category cat = rs.getString("category_name").equals("Electronics")
                         ? electronics : books;
                 CategoryDiscount discount = new CategoryDiscount(
+                        rs.getString("id"),
                         cat,
                         rs.getDouble("discount_percent"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
@@ -186,6 +187,7 @@ public class Database {
                 Category cat = rs.getString("category_name").equals("Electronics")
                         ? electronics : books;
                 PromoCode promo = new PromoCode(
+                        rs.getString("id"),
                         cat,
                         rs.getDouble("discount_percent"),
                         rs.getString("code"),

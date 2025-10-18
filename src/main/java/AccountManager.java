@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class AccountManager {
     private final List<Transaction> transactions = new ArrayList<>();
@@ -52,19 +53,38 @@ public class AccountManager {
         System.out.printf("Кредит погашен на %.2f USDT. Остаток задолженности: %.2f USDT%n", amount, user.getCredit());
     }
 
-    public boolean purchase(User user, double amount) {
+    public boolean purchase(User user, double amount, Scanner scanner) {
         if (amount <= 0) {
-            System.out.println("Сумма покупки должна быть положительной.");
+            System.out.println("Purchase amount must be positive.");
             return false;
         }
-        if (user.getBalance() < amount) {
-            System.out.println("Недостаточно средств. Пожалуйста, пополните баланс.");
-            return false;
+
+        if (user.getBalance() >= amount) {
+            user.setBalance(user.getBalance() - amount);
+            transactions.add(new Transaction(Transaction.TransactionType.PURCHASE, amount, user.getId()));
+            System.out.printf("Debited %.2f USDT. Remaining balance: %.2f USDT%n", amount, user.getBalance());
+            return true;
+        } else {
+            double needed = amount - user.getBalance();
+            System.out.printf("Insufficient funds. You need %.2f more USDT. Use credit? (yes/no): ", needed);
+            String choice = scanner.nextLine().trim().toLowerCase();
+
+            if (choice.equals("yes")) {
+                double creditToUse = Math.ceil(needed);
+                user.setBalance(user.getBalance() + creditToUse);
+                user.setCredit(user.getCredit() + creditToUse);
+                transactions.add(new Transaction(Transaction.TransactionType.CREDIT_REQUEST, creditToUse, user.getId()));
+
+                user.setBalance(user.getBalance() - amount);
+                transactions.add(new Transaction(Transaction.TransactionType.PURCHASE, amount, user.getId()));
+                System.out.printf("Credit of %.2f USDT approved. Debited %.2f USDT. Remaining balance: %.2f USDT, Outstanding credit: %.2f USDT%n",
+                        creditToUse, amount, user.getBalance(), user.getCredit());
+                return true;
+            } else {
+                System.out.println("Purchase cancelled by user.");
+                return false;
+            }
         }
-        user.setBalance(user.getBalance() - amount);
-        transactions.add(new Transaction(Transaction.TransactionType.PURCHASE, amount, user.getId()));
-        System.out.printf("Списано %.2f USDT. Остаток баланса: %.2f USDT%n", amount, user.getBalance());
-        return true;
     }
 
     public List<Transaction> getTransactions() {

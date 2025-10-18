@@ -1,5 +1,6 @@
 Product.class
 PricePolicy.class
+AbstractDiscount.class
 DigitalProduct.class
 PromoCode.class
 Transaction.class
@@ -10,9 +11,10 @@ AntiBag.class
 Transaction$TransactionType.class
 CategoryDiscount.class
 FixedOff.class
+TaxService.class
+VatService.class
 Main.class
 AccountManager.class
 User.class
 Category.class
-DiscountManager.class
 PhysicalProduct.class

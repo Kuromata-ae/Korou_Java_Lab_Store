@@ -154,8 +154,12 @@ public class Product {
 
     // ---------------- Final Price Methods (POLYMORPHISM) ----------------
 
-    public double finalPrice() {
-        return price;
+    public double finalPrice(List<CategoryDiscount> discounts) {
+        double currentPrice = this.price;
+        for (CategoryDiscount discount : discounts) {
+            currentPrice -= discount.applyDiscount(this);
+        }
+        return Math.max(0, currentPrice);
     }
 
     public double finalPrice(int qty) {

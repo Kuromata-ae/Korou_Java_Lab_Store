@@ -1,3 +1,4 @@
+/app/src/main/java/AbstractDiscount.java
 /app/src/main/java/AccountManager.java
 /app/src/main/java/AntiBag.java
 /app/src/main/java/BogoHalf.java
@@ -5,7 +6,6 @@
 /app/src/main/java/CategoryDiscount.java
 /app/src/main/java/Database.java
 /app/src/main/java/DigitalProduct.java
-/app/src/main/java/DiscountManager.java
 /app/src/main/java/FixedOff.java
 /app/src/main/java/Main.java
 /app/src/main/java/PercentageOff.java
@@ -13,5 +13,7 @@
 /app/src/main/java/PricePolicy.java
 /app/src/main/java/Product.java
 /app/src/main/java/PromoCode.java
+/app/src/main/java/TaxService.java
 /app/src/main/java/Transaction.java
 /app/src/main/java/User.java
+/app/src/main/java/VatService.java
